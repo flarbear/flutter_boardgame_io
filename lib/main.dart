@@ -21,7 +21,7 @@ class TicTacToeApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -31,9 +31,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bgio.Lobby lobby = bgio.Lobby(Uri.base);
-  bgio.Client clientX;
-  bgio.Client clientO;
-  bgio.Client bannerClient;
+  bgio.Client? clientX;
+  bgio.Client? clientO;
+  bgio.Client? bannerClient;
 
   @override
   void initState() {
@@ -71,14 +71,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (bannerClient != null) TicTacToeBanner(bannerClient),
+            if (bannerClient != null) TicTacToeBanner(bannerClient!),
             SizedBox(height: 100),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                if (clientX != null) TicTacToePlayer(clientX),
+                if (clientX != null) TicTacToePlayer(clientX!),
                 SizedBox(width: 100),
-                if (clientO != null) TicTacToePlayer(clientO),
+                if (clientO != null) TicTacToePlayer(clientO!),
               ],
             ),
           ],

@@ -8,14 +8,14 @@ abstract class TicTacToeBase extends StatefulWidget {
 }
 
 abstract class TicTacToeBaseState<T extends TicTacToeBase> extends State<T> {
-  bgio.ClientContext _ctx;
-  List<String> _cells;
-  bool _isPlaying;
+  bgio.ClientContext? _ctx;
+  List<String?>? _cells;
+  bool _isPlaying = false;
 
   void _setUp() {
     this._isPlaying = false;
     this._ctx = null;
-    this._cells = List<String>.filled(9, null);
+    this._cells = List<String?>.filled(9, null);
     widget.client.subscribe(_update);
     widget.client.start();
   }
@@ -31,7 +31,7 @@ abstract class TicTacToeBaseState<T extends TicTacToeBase> extends State<T> {
   }
 
   @override
-  void didUpdateWidget(TicTacToeBase oldWidget) {
+  void didUpdateWidget(T oldWidget) {
     _takeDown(oldWidget);
     super.didUpdateWidget(oldWidget);
     _setUp();
@@ -45,11 +45,9 @@ abstract class TicTacToeBaseState<T extends TicTacToeBase> extends State<T> {
 
   void _update(Map<String, dynamic> G, bgio.ClientContext ctx) {
     setState(() {
-      if (ctx != null) {
-        _isPlaying = !ctx.isGameOver && ctx.currentPlayer == widget.client.playerID;
-        _ctx = ctx;
-        _cells = G['cells'];
-      }
+      _isPlaying = !ctx.isGameOver && ctx.currentPlayer == widget.client.playerID;
+      _ctx = ctx;
+      _cells = G['cells'];
     });
   }
 }
@@ -66,7 +64,7 @@ class TicTacToePlayerState extends TicTacToeBaseState<TicTacToePlayer> {
     widget.client.makeMove('clickCell', [ index ]);
   }
 
-  Widget _makeCell(Widget child, [ Color color ]) {
+  Widget _makeCell(Widget? child, [ Color? color ]) {
     if (color != null) {
       child = Container(color: color, child: child);
     } else if (child != null) {
@@ -80,7 +78,7 @@ class TicTacToePlayerState extends TicTacToeBaseState<TicTacToePlayer> {
   }
 
   Widget _cell(int index) {
-    switch (_cells[index]) {
+    switch (_cells![index]) {
       case '0': return _makeCell(Text('X', textAlign: TextAlign.center));
       case '1': return _makeCell(Text('O', textAlign: TextAlign.center));
       default: return _isPlaying
@@ -128,22 +126,21 @@ class TicTacToeBannerState extends TicTacToeBaseState<TicTacToeBanner> {
   @override
   Widget build(BuildContext context) {
     String status;
-    if (_ctx == null) {
+    bgio.ClientContext? ctx = _ctx;
+    if (ctx == null) {
       status = 'Waiting for game to initialize...';
     } else {
-      if (_ctx.isGameOver) {
-        if (_ctx.isDraw) {
+      if (ctx.isGameOver) {
+        if (ctx.isDraw) {
           status = 'Draw game';
-        } else if (_ctx.winnerID != null) {
-          status = '${widget.client.players[_ctx.winnerID].name} wins!';
+        } else if (ctx.winnerID != null) {
+          status = '${widget.client.players[ctx.winnerID]!.name} wins!';
         } else {
-          status = 'Game over (${_ctx.gameOver})';
+          status = 'Game over (${ctx.gameOver})';
         }
       } else {
-        bgio.Player player = widget.client.players[_ctx.currentPlayer];
-        status = (player == null)
-            ? 'Not all players have joined'
-            : '${widget.client.players[_ctx.currentPlayer].name} to move';
+        bgio.Player? player = widget.client.players[ctx.currentPlayer];
+        status = (player == null) ? 'Not all players have joined' : '${player.name} to move';
       }
     }
     return Text(status, style: style);
